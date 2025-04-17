@@ -1,0 +1,22 @@
+services:
+  analyzer:
+    image: local/analyzer:v1
+    build: ./
+    container_name: analyzer
+    ports:
+      - "9000:9000"
+    networks:
+      - share
+    healthcheck:
+      test: curl --fail -s http://localhost:9000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+networks:
+  share:
+    external: true
