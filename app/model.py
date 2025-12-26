@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-logger = logging.getLogger('uvicorn.error')
+from logger_common import *
 
 class FC(nn.Module):
     def __init__(self, input_size, output_size, dropout_rate=0.5):
@@ -117,3 +117,4 @@ def predict(model, scaler, x, steps=1):
             y_pred = torch.round(F.relu(scaler(y_pred, inverse=True)))
             x = torch.cat([x, y_pred], dim=1)
     return x[:, -steps:]
+

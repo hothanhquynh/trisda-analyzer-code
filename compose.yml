@@ -2,11 +2,11 @@ services:
   analyzer:
     image: local/analyzer:v1
     build: ./
-    container_name: analyzer
-    ports:
-      - "9000:9000"
+    container_name: trisda_dev_analyzer
+    #ports:
+    #  - "9000:9000"
     networks:
-      - share
+      - trisda_dev_internal
     healthcheck:
       test: curl --fail -s http://localhost:9000/health || exit 1
       interval: 30s
@@ -18,5 +18,5 @@ services:
         max-size: "50m"
         max-file: "3"
 networks:
-  share:
+  trisda_dev_internal:
     external: true

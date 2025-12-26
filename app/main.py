@@ -5,11 +5,13 @@ from fastapi import FastAPI, Query
 from pydantic import BaseModel
 
 from model import *
+from logger_common import *
 
 class PredictionInput(BaseModel):
     vtype: str
-    x: list[float] | list[list[float]]
+    x: list[float] | list[list[float]] | None
     steps: int = 1
+    default_zero: bool = True
 
 
 models = {
@@ -42,9 +44,15 @@ app = FastAPI(lifespan=lifespan)
 async def run_predict(data: PredictionInput):
     if data.vtype not in models:
         return {"result": -1, "status": "failed", "message": f"No model with type: {data.vtype}"}
+    if (data.x is None or len(data.x) == 0 or len(data.x[0]) == 0) and data.default_zero:
+        logger.info('Default to zero-tensor inputs as inputs are empty and default_zero is enabled')
+        logger.info(f'Input shape before using default value: {np.array(data.x).shape}')
+        data.x = np.zeros((len(data.x), sizes[0]))
+        logger.info(f'Input shape after using default value: {data.x.shape}')
     result = predict(models[data.vtype], Scaler(), data.x, data.steps)
     return {"result": result.tolist(), "status": "successful", "message":""}
 
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
